@@ -1,52 +1,66 @@
 package com.github.prplrose.playerpanel.http;
 
-public class HttpRequest extends HttpMessage{
+import com.github.prplrose.playerpanel.http.httpmessage.Head;
+import com.github.prplrose.playerpanel.http.httpmessage.HttpMessage;
+import com.github.prplrose.playerpanel.http.httpmessage.headers.HeaderManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    private HttpMethod method;
-    private String target;
-    //private String requestedVersion;
-    private HttpVersion bestCompatibleVersion;
+import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    HttpRequest() {
+public class HttpRequest extends HttpMessage {
 
+    RequestHead head;
+
+    public HttpRequest(InputStream inputStream) throws HttpParsingException {
+        super(inputStream);
     }
 
     public HttpMethod getMethod() {
-        return method;
+        return head.httpMethod;
     }
-
-    void setMethod(String methodName) throws HttpParsingException {
-        for(HttpMethod method: HttpMethod.values()){
-            if(methodName.equals(method.name())){
-                this.method = method;
-                return;
-            }
-        }
-        throw new HttpParsingException(
-                HttpStatusCode.NOT_IMPLEMENTED_ERROR
-        );
-    }
-
     public String getTarget() {
-        return this.target;
+        return head.target;
     }
-
-    void setTarget(String target) throws HttpParsingException {
-        if(target==null || target.length()==0){
-            throw new HttpParsingException(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        this.target = target;
-    }
-
 
     public HttpVersion getCompatibleVersion(){
-        return this.bestCompatibleVersion;
+        return head.httpVersion;
     }
 
-    public void setRequestedVersion(String requestedVersion) throws BadHttpVersionException, HttpParsingException {
-        this.bestCompatibleVersion = HttpVersion.getBestCompatibleVersion(requestedVersion);
-        if(this.bestCompatibleVersion == null){
-            throw new HttpParsingException(HttpStatusCode.HTTP_VERSION_NOT_SUPPORTED);
+    @Override
+    public Head constructHead(@NotNull String startLine, @Nullable String[] headers) throws HttpParsingException {
+        RequestHead requestHead = new RequestHead(startLine, headers);
+        this.head = requestHead;
+        return requestHead;
+    }
+
+
+    static class RequestHead implements Head {
+
+        private static final Pattern REQUEST_LINE_PATTERN = Pattern.compile("^(?<method>[A-Z]{1,32}) (?<target>\\S*) (?<version>HTTP/\\d\\.\\d)");
+
+        HttpMethod httpMethod;
+        String target;
+        HttpVersion httpVersion;
+        HeaderManager headerManager;
+
+        public RequestHead(@NotNull String startLine, @Nullable String[] headers) throws HttpParsingException{
+            Matcher matcher = REQUEST_LINE_PATTERN.matcher(startLine);
+            if(!matcher.find() || matcher.groupCount() != 3){
+                throw new HttpParsingException(HttpStatusCode.BAD_REQUEST);
+            }
+            this.httpMethod = HttpMethod.getMethod(matcher.group("method"));
+            this.target = matcher.group("target");
+            this.httpVersion = HttpVersion.getBestCompatibleVersion(matcher.group("version"));
+            headerManager = new HeaderManager(headers);
+        }
+
+
+        @Override
+        public HeaderManager getHeaderManager() {
+            return this.headerManager;
         }
     }
 }

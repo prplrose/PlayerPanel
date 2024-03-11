@@ -1,7 +1,7 @@
 package com.github.prplrose.playerpanel.server;
 
 import com.github.prplrose.playerpanel.PlayerPanel;
-import com.github.prplrose.playerpanel.http.HttpParser;
+import com.github.prplrose.playerpanel.http.HttpRequest;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class ServerWorker extends Thread{
 
         try (InputStream inputStream = socket.getInputStream(); OutputStream outputStream = socket.getOutputStream()) {
 
-            HttpParser.parse(inputStream);
+            HttpRequest httpRequest = new HttpRequest(inputStream);
 
             String response = "HTTP/1.1 200 OK" + CRLF + "Content-Length: " + html.getBytes().length + CRLF + CRLF + html + CRLF + CRLF;
             outputStream.write(response.getBytes());

@@ -18,10 +18,10 @@ public enum HttpVersion {
 
     private static final Pattern versionRegexPattern = Pattern.compile("^HTTP/(?<major>\\d).(?<minor>\\d)");
 
-    public static HttpVersion getBestCompatibleVersion(String literalVersion) throws BadHttpVersionException {
+    public static HttpVersion getBestCompatibleVersion(String literalVersion) throws HttpParsingException {
         Matcher matcher = versionRegexPattern.matcher(literalVersion);
         if(!matcher.find() || matcher.groupCount() != 2){
-            throw new BadHttpVersionException();
+            throw new HttpParsingException(HttpStatusCode.BAD_REQUEST);
         }
         int major = Integer.parseInt(matcher.group("major"));
         int minor = Integer.parseInt(matcher.group("minor"));
@@ -37,6 +37,9 @@ public enum HttpVersion {
                     }
                 }
             }
+        }
+        if (best == null){
+            throw new HttpParsingException(HttpStatusCode.HTTP_VERSION_NOT_SUPPORTED);
         }
         return best;
     }

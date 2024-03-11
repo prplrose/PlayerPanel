@@ -1,10 +1,14 @@
 package com.github.prplrose.playerpanel.http;
 
+@SuppressWarnings("unused")
 public enum HttpStatusCode {
 
     /** CLIENT ERRORS */
     BAD_REQUEST(400, "Bad Request"),
-    METHOD_NOT_ALLOWED(401, "Method Not Allowed"),
+    UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
+    NOT_FOUND(404, "Not Found"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     URI_TOO_LONG(414, "URI Too Long"),
     /** SERVER ERRORS */
     INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
