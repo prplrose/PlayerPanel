@@ -1,5 +1,10 @@
-package com.github.prplrose.playerpanel.http;
+package com.github.prplrose.playerpanel.http.httpmessage;
 
+import com.github.prplrose.playerpanel.http.HttpMethod;
+import com.github.prplrose.playerpanel.http.HttpParsingException;
+import com.github.prplrose.playerpanel.http.HttpStatusCode;
+import com.github.prplrose.playerpanel.http.HttpVersion;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -31,8 +36,8 @@ class HttpRequestTest {
         try {
             HttpRequest request = new HttpRequest(stream);
             assertNotNull(request);
-            assertEquals(HttpMethod.GET, request.getMethod());
-            assertEquals("/", request.getTarget());
+            Assertions.assertEquals(HttpMethod.GET, request.getRequestHead().getMethod());
+            assertEquals("/", request.getRequestHead().getTarget());
         }catch (Exception e){
             fail(e);
         }
@@ -49,7 +54,7 @@ class HttpRequestTest {
             new HttpRequest(stream);
             fail();
         }catch (HttpParsingException e){
-            assertEquals(HttpStatusCode.NOT_IMPLEMENTED_ERROR, e.getErrorCode());
+            Assertions.assertEquals(HttpStatusCode.NOT_IMPLEMENTED_ERROR, e.getErrorCode());
         }
     }
 
@@ -93,7 +98,7 @@ class HttpRequestTest {
         try {
             HttpRequest request = new HttpRequest(stream);
             assertNotNull(request);
-            assertEquals(request.getCompatibleVersion(), HttpVersion.HTTP_1_1);
+            Assertions.assertEquals(request.getRequestHead().getVersion(), HttpVersion.HTTP_1_1);
         }catch (HttpParsingException e){
             fail();
         }

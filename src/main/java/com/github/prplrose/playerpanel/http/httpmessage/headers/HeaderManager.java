@@ -28,7 +28,9 @@ public class HeaderManager {
         }
     }
 
-    AbstractHeader<?> get(String name){
+    public HeaderManager(){}
+
+    AbstractHeader<?> getValueOf(String name){
         for( AbstractHeader<?> header : headers){
             if(header.equals(name)){
                 return header;
@@ -45,11 +47,26 @@ public class HeaderManager {
     }
 
     public int getContentLength(){
-        Headers.ContentLength contentLengthHeader = (Headers.ContentLength) get(Headers.ContentLength.name);
+        Headers.ContentLength contentLengthHeader = (Headers.ContentLength) this.getValueOf(Headers.ContentLength.name);
         if (contentLengthHeader!=null){
             return contentLengthHeader.getValue();
         }
         return 0;
+    }
+
+    public void setContentLength(int length){
+        this.addHeader(new Headers.ContentLength(length));
+    }
+
+    public String getHeadersAsString(){
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(AbstractHeader<?> header : headers){
+            stringBuilder.append(header.toString());
+        }
+        stringBuilder.append("\r\n");
+
+        return stringBuilder.toString();
     }
 
 }

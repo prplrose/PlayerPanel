@@ -27,7 +27,7 @@ public class Config {
     }
 
     public static void load(Path dir) throws IOException, CommandSyntaxException {
-        configFile = dir.resolve("PlayerPanel.conf").toFile();
+        configFile = dir.resolve("PlayerPanel/config.txt").toFile();
         NbtCompound nbtCompound = new NbtCompound();
         writeNbt(nbtCompound);
 

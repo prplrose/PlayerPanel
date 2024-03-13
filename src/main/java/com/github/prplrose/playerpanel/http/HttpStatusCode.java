@@ -3,6 +3,7 @@ package com.github.prplrose.playerpanel.http;
 @SuppressWarnings("unused")
 public enum HttpStatusCode {
 
+    OK(200, "OK"),
     /** CLIENT ERRORS */
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
