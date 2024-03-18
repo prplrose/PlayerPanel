@@ -1,7 +1,7 @@
 package com.github.prplrose.playerpanel.http.httpmessage;
 
 import com.github.prplrose.playerpanel.http.HttpMethod;
-import com.github.prplrose.playerpanel.http.HttpParsingException;
+import com.github.prplrose.playerpanel.http.HttpException;
 import com.github.prplrose.playerpanel.http.HttpStatusCode;
 import com.github.prplrose.playerpanel.http.HttpVersion;
 import com.github.prplrose.playerpanel.http.httpmessage.headers.HeaderManager;
@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 public class HttpRequest extends HttpMessage {
 
 
-    public HttpRequest(InputStream inputStream) throws HttpParsingException {
+    public HttpRequest(InputStream inputStream) throws HttpException {
         InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.US_ASCII);
         StringBuilder feed = new StringBuilder();
         List<String> headers = new ArrayList<>();
@@ -36,7 +37,7 @@ public class HttpRequest extends HttpMessage {
                 currChar = reader.read();
                 c = (char)currChar;
                 if(c!='\n'){  // check if LF is after CR, if not throw exception
-                    throw new HttpParsingException(HttpStatusCode.BAD_REQUEST);
+                    throw new HttpException(HttpStatusCode.BAD_REQUEST);
                 }
                 if (this.head == null){
                     if (startLine==null){   // first line is start-line
@@ -66,7 +67,7 @@ public class HttpRequest extends HttpMessage {
                 }
             }
         }catch (IOException e){
-            throw new HttpParsingException(HttpStatusCode.BAD_REQUEST);
+            throw new HttpException(HttpStatusCode.BAD_REQUEST);
         }
     }
 
@@ -80,24 +81,24 @@ public class HttpRequest extends HttpMessage {
         private static final Pattern REQUEST_LINE_PATTERN = Pattern.compile("^(?<method>[A-Z]{1,32}) (?<target>\\S*) (?<version>HTTP/\\d\\.\\d)");
 
         HttpMethod httpMethod;
-        String target;
+        URI target;
         HttpVersion httpVersion;
         HeaderManager headerManager;
 
-        public RequestHead(@NotNull String startLine, @Nullable String[] headers) throws HttpParsingException{
+        public RequestHead(@NotNull String startLine, @Nullable String[] headers) throws HttpException {
             Matcher matcher = REQUEST_LINE_PATTERN.matcher(startLine);
             if(!matcher.find() || matcher.groupCount() != 3){
-                throw new HttpParsingException(HttpStatusCode.BAD_REQUEST);
+                throw new HttpException(HttpStatusCode.BAD_REQUEST);
             }
             this.httpMethod = HttpMethod.getMethod(matcher.group("method"));
-            this.target = matcher.group("target");
+            this.target = URI.create("/").relativize(URI.create(matcher.group("target")));
             this.httpVersion = HttpVersion.getBestCompatibleVersion(matcher.group("version"));
             headerManager = new HeaderManager(headers);
         }
         public HttpMethod getMethod() {
             return this.httpMethod;
         }
-        public String getTarget() {
+        public URI getTarget() {
             return this.target;
         }
 

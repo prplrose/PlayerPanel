@@ -12,12 +12,12 @@ public enum HttpMethod {
         MAX_LENGTH = maxLength;
     }
 
-    public static HttpMethod getMethod(String requestedMethod) throws HttpParsingException {
+    public static HttpMethod getMethod(String requestedMethod) throws HttpException {
         for (HttpMethod method : HttpMethod.values()){
             if(method.name().equals(requestedMethod)){
                 return method;
             }
         }
-        throw new HttpParsingException(HttpStatusCode.NOT_IMPLEMENTED_ERROR);
+        throw new HttpException(HttpStatusCode.NOT_IMPLEMENTED_ERROR);
     }
 }

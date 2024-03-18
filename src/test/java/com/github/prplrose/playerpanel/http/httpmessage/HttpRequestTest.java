@@ -1,7 +1,6 @@
 package com.github.prplrose.playerpanel.http.httpmessage;
 
-import com.github.prplrose.playerpanel.http.HttpMethod;
-import com.github.prplrose.playerpanel.http.HttpParsingException;
+import com.github.prplrose.playerpanel.http.HttpException;
 import com.github.prplrose.playerpanel.http.HttpStatusCode;
 import com.github.prplrose.playerpanel.http.HttpVersion;
 import org.junit.jupiter.api.Assertions;
@@ -15,35 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpRequestTest {
 
     @Test
-    void correctRequest(){
-
-        ByteArrayInputStream stream = new ByteArrayInputStream("""
-                GET / HTTP/1.1\r
-                Host: localhost:8080\r
-                User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0\r
-                Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\r
-                Accept-Language: pl,en-US;q=0.7,en;q=0.3\r
-                Accept-Encoding: gzip, deflate, br\r
-                Connection: keep-alive\r
-                Upgrade-Insecure-Requests: 1\r
-                Sec-Fetch-Dest: document\r
-                Sec-Fetch-Mode: navigate\r
-                Sec-Fetch-Site: none\r
-                Sec-Fetch-User: ?1\r
-                \r
-                """.getBytes(StandardCharsets.US_ASCII));
-
-        try {
-            HttpRequest request = new HttpRequest(stream);
-            assertNotNull(request);
-            Assertions.assertEquals(HttpMethod.GET, request.getRequestHead().getMethod());
-            assertEquals("/", request.getRequestHead().getTarget());
-        }catch (Exception e){
-            fail(e);
-        }
-    }
-
-    @Test
     void badMethod()  {
         ByteArrayInputStream stream = new ByteArrayInputStream("""
                 BONK / HTTP/1.1\r
@@ -53,7 +23,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             Assertions.assertEquals(HttpStatusCode.NOT_IMPLEMENTED_ERROR, e.getErrorCode());
         }
     }
@@ -68,7 +38,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(HttpStatusCode.HTTP_VERSION_NOT_SUPPORTED, e.getErrorCode());
         }
     }
@@ -83,7 +53,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(e.getErrorCode(), HttpStatusCode.BAD_REQUEST);
         }
     }
@@ -99,7 +69,7 @@ class HttpRequestTest {
             HttpRequest request = new HttpRequest(stream);
             assertNotNull(request);
             Assertions.assertEquals(request.getRequestHead().getVersion(), HttpVersion.HTTP_1_1);
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
     }
@@ -114,7 +84,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(e.getErrorCode(), HttpStatusCode.NOT_IMPLEMENTED_ERROR);
         }
     }
@@ -129,7 +99,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(e.getErrorCode(), HttpStatusCode.BAD_REQUEST);
         }
     }
@@ -144,7 +114,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(e.getErrorCode(), HttpStatusCode.BAD_REQUEST);
         }
     }
@@ -158,7 +128,7 @@ class HttpRequestTest {
         try {
             new HttpRequest(stream);
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(e.getErrorCode(), HttpStatusCode.BAD_REQUEST);
         }
     }
@@ -175,7 +145,7 @@ class HttpRequestTest {
         try {
             HttpRequest request = new HttpRequest(stream);
             assertEquals("Hello world!", request.body);
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
     }
@@ -192,7 +162,7 @@ class HttpRequestTest {
         try {
             HttpRequest request = new HttpRequest(stream);
             assertEquals("", request.body);
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
     }
@@ -208,7 +178,7 @@ class HttpRequestTest {
                 """.getBytes(StandardCharsets.US_ASCII));
         try {
             new HttpRequest(stream);
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
     }

@@ -21,7 +21,6 @@ public class ServerListener extends Thread {
         try {
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                PlayerPanel.LOGGER.info("Accepted connection: " + socket.getInetAddress());
                 ServerWorker serverWorker = new ServerWorker(socket);
                 serverWorker.start();
             }

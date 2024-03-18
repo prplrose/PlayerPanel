@@ -11,7 +11,7 @@ class HttpVersionTest {
         HttpVersion version = null;
         try {
             version = HttpVersion.getBestCompatibleVersion("HTTP/1.1");
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
         assertNotNull(version);
@@ -23,7 +23,7 @@ class HttpVersionTest {
         try {
             HttpVersion.getBestCompatibleVersion("http/1.1");
             fail();
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             assertEquals(HttpStatusCode.BAD_REQUEST, e.getErrorCode());
         }
     }
@@ -33,7 +33,7 @@ class HttpVersionTest {
         HttpVersion version = null;
         try {
             version = HttpVersion.getBestCompatibleVersion("HTTP/1.2");
-        }catch (HttpParsingException e){
+        }catch (HttpException e){
             fail();
         }
         assertNotNull(version);

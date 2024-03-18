@@ -1,9 +1,9 @@
 package com.github.prplrose.playerpanel.http;
 
-public class HttpParsingException extends Exception{
+public class HttpException extends Exception{
     private final HttpStatusCode errorCode;
 
-    public HttpParsingException(HttpStatusCode errorCode){
+    public HttpException(HttpStatusCode errorCode){
         super(errorCode.MESSAGE);
         this.errorCode = errorCode;
     }

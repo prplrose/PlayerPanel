@@ -16,18 +16,16 @@ public class Config {
 
     static File configFile;
     public static ConfigRecord<Integer> port = new ConfigRecord<>("port", 8001);
-    public static ConfigRecord<String> webroot = new ConfigRecord<>("webroot", "/tmp");
-    //public static ConfigRecord<Integer> listeners = new ConfigRecord<Integer>("max_connections_at_a_time", 10);
+    public static ConfigRecord<Boolean> hostWebpage = new ConfigRecord<>("host_webpage", true);
     private static final List<ConfigRecord<?>> records = new ArrayList<>();
 
     public static void init(){
         records.add(port);
-        records.add(webroot);
-//        records.add(listeners);
+        records.add(hostWebpage);
     }
 
-    public static void load(Path dir) throws IOException, CommandSyntaxException {
-        configFile = dir.resolve("PlayerPanel/config.txt").toFile();
+    public static void load(Path dir) throws IOException {
+        configFile = dir.resolve("config.txt").toFile();
         NbtCompound nbtCompound = new NbtCompound();
         writeNbt(nbtCompound);
 
@@ -38,9 +36,20 @@ public class Config {
             while ((ch=fileReader.read()) != -1){
                 stringBuffer.append((char)ch);
             }
-            nbtCompound = NbtHelper.fromNbtProviderString(stringBuffer.toString());
+            try {
+                nbtCompound = NbtHelper.fromNbtProviderString(stringBuffer.toString());
+            } catch (CommandSyntaxException e) {
+                throw new RuntimeException(e);
+            }
             fileReader.close();
             readNbt(nbtCompound);
+        }else {
+            File f;
+            f = dir.resolve("").toFile();
+            f.mkdir();
+            f = dir.resolve("webpage").toFile();
+            f.mkdir();
+            //TODO: default config
         }
         saveConfig();
     }
@@ -70,7 +79,7 @@ public class Config {
     private static void saveConfig() throws IOException{
         NbtCompound nbtCompound = writeNbt(new NbtCompound());
         PrintWriter printWriter = new PrintWriter(configFile);
-        printWriter.write(NbtHelper.toFormattedString(nbtCompound));
+        printWriter.write(NbtHelper.toFormattedString(nbtCompound, true));
         printWriter.close();
     }
 
